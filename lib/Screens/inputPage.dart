@@ -1,12 +1,18 @@
+import 'package:bmi_app/Screens/resultsPage.dart';
 import 'package:bmi_app/Util/color.dart';
 import 'package:bmi_app/Util/util.dart';
 import 'package:bmi_app/Widgets/card.dart';
+import 'package:bmi_app/Widgets/roundIconButton.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../Func/calculatorBrain.dart';
+import '../Widgets/bottomButton.dart';
 import '../Widgets/genderWidget.dart';
 
 enum Gender { male, female }
+enum Weights { plus, minus }
+enum Age { plus, minus }
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -18,6 +24,9 @@ class InputPage extends StatefulWidget {
 class _InputPageState extends State<InputPage> {
   Gender? gender;
   double height = 180;
+  int weight = 60;
+  int age = 20;
+
   void updateGender(Gender selectedGender) {
     (selectedGender == Gender.male)
         ? setState(
@@ -30,6 +39,28 @@ class _InputPageState extends State<InputPage> {
               gender = Gender.female;
             },
           );
+  }
+
+  void updateWeight(Weights clickedWeight) {
+    (clickedWeight == Weights.plus)
+        ? setState(() {
+            weight++;
+          })
+        : setState(
+            () {
+              weight--;
+            },
+          );
+  }
+
+  void updateAge(Age ages) {
+    (ages == Age.plus)
+        ? setState(() {
+            age++;
+          })
+        : setState(() {
+            age--;
+          });
   }
 
   @override
@@ -136,26 +167,98 @@ class _InputPageState extends State<InputPage> {
                   Expanded(
                       child: Cards(
                     color: kInactiveColor,
+                    childContainer: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Weight',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          weight.toString(),
+                          style: kBigTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RoundIconButton(
+                              updatedWeight: () {
+                                updateWeight(Weights.plus);
+                              },
+                              icon: FontAwesomeIcons.plus,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            RoundIconButton(
+                                updatedWeight: () {
+                                  updateWeight(Weights.minus);
+                                },
+                                icon: FontAwesomeIcons.minus),
+                          ],
+                        )
+                      ],
+                    ),
                   )),
                   Expanded(
                       child: Cards(
                     color: kInactiveColor,
+                    childContainer: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Age',
+                          style: kLabelTextStyle,
+                        ),
+                        Text(
+                          age.toString(),
+                          style: kBigTextStyle,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            RoundIconButton(
+                              updatedWeight: () {
+                                updateAge(Age.plus);
+                              },
+                              icon: FontAwesomeIcons.plus,
+                            ),
+                            const SizedBox(
+                              width: 8,
+                            ),
+                            RoundIconButton(
+                                updatedWeight: () {
+                                  updateAge(Age.minus);
+                                },
+                                icon: FontAwesomeIcons.minus),
+                          ],
+                        )
+                      ],
+                    ),
                   )),
                 ],
               ),
             ),
-            Container(
-              color: kBottomColor,
-              margin: const EdgeInsets.only(top: 10),
-              width: double.infinity,
-              height: bottomContainerHeight,
-            ),
+            BottomButton(
+                onTap: () {
+                  CalculatorBrain calculatorBrain = CalculatorBrain(
+                    height: height,
+                    weight: weight.toDouble(),
+                  );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ResultPage(
+                              bmiResult: calculatorBrain.bmi(),
+                              resultText: calculatorBrain.getResult(),
+                              interpretation:
+                                  calculatorBrain.getInterpretation()))
+                      // Navigator.pushNamed(context, '/result', arguments: {});
+                      );
+                },
+                buttonTiltle: 'CALCULATE'),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (() {}),
-        child: Icon(Icons.add),
       ),
     );
   }
